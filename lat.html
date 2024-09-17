@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaflet Geocoding with Pincode First</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      #map {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Leaflet Geocoding with Pincode First</h1>
+
+    <textarea
+      id="address"
+      placeholder="Enter the address in multiple lines"
+      rows="6"
+      cols="30"
+    ></textarea>
+    <br />
+    <input type="text" id="pincode" placeholder="Enter Pincode" />
+    <br />
+    <button onclick="geocodeWithPincode()">Get Lat/Lng</button>
+
+    <p id="result"></p>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      // Initialize the map
+      var map = L.map("map").setView([20.5937, 78.9629], 5); // Default view (India)
+
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Helper function to perform a geocode request
+      function fetchGeocode(query) {
+        return fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            query
+          )}`
+        ).then((response) => response.json());
+      }
+
+      // Geocode with pincode-first approach
+      async function geocodeWithPincode() {
+        var address = document.getElementById("address").value.trim();
+        var pincode = document.getElementById("pincode").value.trim();
+        var addressParts = address
+          .split("\n")
+          .filter((part) => part.trim() !== ""); // Split address by lines
+
+        if (!pincode) {
+          document.getElementById("result").innerText =
+            "Please enter a pincode.";
+          return;
+        }
+
+        var pincodeQuery = `${pincode}`;
+        var resultFound = false;
+        var currentQuery = "";
+
+        // 1. Try geocoding with the pincode first
+        try {
+          var pincodeData = await fetchGeocode(pincodeQuery);
+          if (pincodeData && pincodeData.length > 0) {
+            var pincodeLat = pincodeData[0].lat;
+            var pincodeLon = pincodeData[0].lon;
+
+            // Add pincode location to map
+            map.setView([pincodeLat, pincodeLon], 13);
+            L.marker([pincodeLat, pincodeLon])
+              .addTo(map)
+              .bindPopup(
+                `<b>Pincode: ${pincode}</b><br>Lat: ${pincodeLat}, Lng: ${pincodeLon}`
+              )
+              .openPopup();
+
+            document.getElementById(
+              "result"
+            ).innerText = `Pincode found: ${pincode}\nLatitude: ${pincodeLat}, Longitude: ${pincodeLon}`;
+          }
+        } catch (error) {
+          console.error("Error fetching pincode location:", error);
+        }
+
+        // 2. Try geocoding with the address (starting from broadest component)
+        for (var i = addressParts.length - 1; i >= 0; i--) {
+          currentQuery = addressParts.slice(i).join(", ") + `, ${pincode}`;
+
+          // Perform geocoding query with currentQuery
+          try {
+            var data = await fetchGeocode(currentQuery);
+            if (data && data.length > 0) {
+              var lat = data[0].lat;
+              var lon = data[0].lon;
+
+              // Update map with full address location
+              map.setView([lat, lon], 13);
+              L.marker([lat, lon])
+                .addTo(map)
+                .bindPopup(`<b>${currentQuery}</b><br>Lat: ${lat}, Lng: ${lon}`)
+                .openPopup();
+
+              document.getElementById(
+                "result"
+              ).innerText = `Address found: ${currentQuery}\nLatitude: ${lat}, Longitude: ${lon}`;
+              resultFound = true;
+              break; // Stop if a match is found
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+
+        // 3. If no address match is found, use the pincode location
+        if (!resultFound) {
+          document.getElementById("result").innerText +=
+            "\nFull address not found. Showing pincode location.";
+        }
+      }
+    </script>
+  </body>
+</html>
