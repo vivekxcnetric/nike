@@ -74,7 +74,7 @@ const ProductDetails = () => {
 
   //   const notify = () => toast.success("Product Added to Cart");
   const notify = () => {
-    toast.success(
+    toast(
       <div className="flex items-center space-x-4">
         <img
           src={variantData?.images[0]?.url}
