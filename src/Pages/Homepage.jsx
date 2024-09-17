@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import Banner1 from '../Assests/homeAssests/banner1.png'
-import Slider from '../Component/Slider'
-import SlickSliderComponent from '../Component/Swiper'
-import axios from 'axios'
-import ShoppingLoader from '../Component/Loader/ShoppingLoader'
-import FindingDealerLoader from '../Component/Loader/FindingDealerLoader'
+import React, { useEffect, useState } from "react";
+import Banner1 from "../Assests/homeAssests/banner1.png";
+import Slider from "../Component/Slider";
+import SlickSliderComponent from "../Component/Swiper";
+import axios from "axios";
+import ShoppingLoader from "../Component/Loader/ShoppingLoader";
+import FindingDealerLoader from "../Component/Loader/FindingDealerLoader";
 
 const api = process.env.REACT_APP_BASE_URL;
 
 const Homepage = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [error, setError] = useState(null);  // State to handle errors
+  const [error, setError] = useState(null); // State to handle errors
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);  // Clear any previous errors
+      setError(null); // Clear any previous errors
       try {
         const response = await axios.get(`${api}/content`);
         setData(response.data);
       } catch (err) {
-        setError('Failed to fetch data. Please check your connection.');
-        
+        setError("Failed to fetch data. Please check your connection.");
       } finally {
         setLoading(false);
       }
@@ -31,15 +30,22 @@ const Homepage = () => {
     fetchData();
   }, []);
 
-  const popularProductSliders = data?.filter(image => image.title.includes('popular product slider'));
-  const thepopularSpotlight = data?.filter(image => image.title.includes('the popular spotlight'));
-  const mainImage = data?.filter(image => image.title.includes('main banner'));
-  const latestImage = data?.filter(image => image.title.includes('the latest'));
+  const popularProductSliders = data?.filter((image) =>
+    image.title.includes("popular product slider")
+  );
+  const thepopularSpotlight = data?.filter((image) =>
+    image.title.includes("the popular spotlight")
+  );
+  const mainImage = data?.filter((image) =>
+    image.title.includes("main banner")
+  );
+  const latestImage = data?.filter((image) =>
+    image.title.includes("the latest")
+  );
 
   if (loading) {
     return <ShoppingLoader />;
   }
-
 
   if (error) {
     return (
@@ -61,11 +67,19 @@ const Homepage = () => {
         />
         <div className="flex flex-col items-center justify-center mt-4 bg-white text-center">
           <h3 className="text-sm text-gray-600 mb-2">Nike Electric Pack</h3>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-4">WIN ON AIR</h1>
-          <p className="text-gray-600 mb-6">Engineered for those who stand out.</p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-4">
+            WIN ON AIR
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Engineered for those who stand out.
+          </p>
           <div className="flex space-x-4">
-            <button className="bg-black text-white py-2 px-6 rounded-full hover:bg-gray-800">Experience Air</button>
-            <button className="bg-black text-white py-2 px-6 rounded-full hover:bg-gray-800">Shop Air</button>
+            <button className="bg-black text-white py-2 px-6 rounded-full hover:bg-gray-800">
+              Experience Air
+            </button>
+            <button className="bg-black text-white py-2 px-6 rounded-full hover:bg-gray-800">
+              Shop Air
+            </button>
           </div>
         </div>
       </div>
@@ -75,7 +89,7 @@ const Homepage = () => {
       <div>
         <SlickSliderComponent data={thepopularSpotlight} />
       </div>
-      <div className="container w-full mx-auto px-2 py-8">
+      <div className=" w-full mx-auto px-2 py-8">
         <h2 className="text-3xl font-bold mb-6">The Latest</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {/* Card 1 */}
@@ -86,7 +100,9 @@ const Homepage = () => {
               className="w-full h-full object-cover"
             />
             <div className="p-4">
-              <h3 className="text-xl font-semibold mb-2">Nike Zenvy Collection</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Nike Zenvy Collection
+              </h3>
               <a href="#" className="text-primary hover:underline">
                 Shop Now
               </a>
@@ -101,7 +117,9 @@ const Homepage = () => {
               className="w-full h-full object-cover"
             />
             <div className="p-4">
-              <h3 className="text-xl font-semibold mb-2">Kylian Mbappé Mercurial</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Kylian Mbappé Mercurial
+              </h3>
               <a href="#" className="text-primary hover:underline">
                 Shop Now
               </a>
